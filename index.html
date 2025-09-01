@@ -56,6 +56,10 @@
     .no-wm { background: #28a745; }
     .wm { background: #007bff; }
     .hd { background: #6f42c1; }
+    .loading {
+      text-align: center;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -63,12 +67,12 @@
     <h2>🎵 TikTok Downloader</h2>
     <input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok">
     <button onclick="getVideo()">Download</button>
+    <div id="loading" class="loading" style="display:none;">Memproses...</div>
 
     <div id="result" class="preview" style="display: none;">
       <img id="cover" src="" alt="Cover">
       <h3 id="title"></h3>
       <p>👤 <span id="author"></span></p>
-
       <div class="download-links">
         <a id="noWm" class="no-wm" target="_blank">⬇️ Download (No Watermark)</a>
         <a id="wm" class="wm" target="_blank">⬇️ Download (Watermark)</a>
@@ -79,30 +83,33 @@
   <script>
     async function getVideo() {
       const url = document.getElementById("tiktokUrl").value.trim();
+      const loading = document.getElementById("loading");
+      const result = document.getElementById("result");
       if (!url) {
         alert("Masukkan URL TikTok dulu!");
         return;
       }
-      const api = `https://api-ditss.vercel.app/download/tiktok-v2?apikey=free&url=${encodeURIComponent(url)}`;
+      loading.style.display = "block";
+      result.style.display = "none";
+      const api = `/api/tiktok?url=${encodeURIComponent(url)}`;
       try {
         const res = await fetch(api);
         const json = await res.json();
-
+        loading.style.display = "none";
         if (!json.status) {
-          alert("Gagal ambil data!");
+          alert("Gagal ambil data! Cek URL TikTok atau coba lagi.");
           return;
         }
         const data = json.result.data;
         document.getElementById("cover").src = data.cover;
         document.getElementById("title").textContent = data.title || "Tanpa Judul";
         document.getElementById("author").textContent = data.author.nickname;
-
         document.getElementById("noWm").href = data.play;
         document.getElementById("wm").href = data.wmplay;
         document.getElementById("hd").href = data.hdplay;
-
-        document.getElementById("result").style.display = "block";
+        result.style.display = "block";
       } catch (err) {
+        loading.style.display = "none";
         alert("Error: " + err.message);
       }
     }
