@@ -3,114 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Downloader Lengkap</title>
+  <title>TikTok Downloader Pro</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3046/3046122.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
+    :root {
+      --primary: #ff0050;
+      --secondary: #23272f;
+      --card-bg: #22262e;
+      --input-bg: #2c313a;
+      --border-radius: 14px;
+      --green: #28a745;
+      --blue: #007bff;
+      --purple: #6f42c1;
+      --dl-shadow: 0 4px 18px #28a74540;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
+      background: var(--secondary);
+      color: #f2f2f2;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
     .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 420px;
+      margin: 40px auto 0 auto;
+      background: var(--card-bg);
+      padding: 24px 18px 20px 18px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      position: relative;
+      z-index: 5;
     }
-    input, button {
-      padding: 10px;
-      margin: 5px 0;
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .logo-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      margin-right: 10px;
+      background: #fff;
+      box-shadow: 0 0 4px #ff005088;
+    }
+    h2 {
+      font-size: 1.55em;
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0 15px 0;
+      letter-spacing: 1px;
+    }
+    input[type="text"] {
+      background: var(--input-bg);
+      color: #fff;
+      border: 1px solid #333a;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      font-size: 1em;
+      margin-bottom: 8px;
       width: 100%;
-      border-radius: 8px;
-      border: 1px solid #ddd;
       box-sizing: border-box;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[type="text"]:focus {
+      border: 1.7px solid var(--primary);
     }
     button {
-      background: #ff0050;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
       border: none;
+      border-radius: var(--border-radius);
+      padding: 12px;
+      width: 100%;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 7px;
+      box-shadow: 0 2px 8px #ff005030;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
     }
-    button:hover {
-      background: #e60047;
+    button:active {
+      transform: scale(0.98);
+    }
+    button.download-btn {
+      background: var(--green);
+      color: #fff;
+      box-shadow: var(--dl-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    button.download-btn:hover {
+      background: #218838;
+      animation: bounce 0.33s;
+    }
+    @keyframes bounce {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.06); }
+      70%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    button.download-hd {
+      background: var(--blue);
+      box-shadow: 0 4px 18px #007bff40;
+    }
+    button.download-hd:hover {
+      background: #0056b3;
+    }
+    button.download-mp3 {
+      background: var(--purple);
+      box-shadow: 0 4px 18px #6f42c140;
+    }
+    button.download-mp3:hover {
+      background: #5a348b;
     }
     .clear-btn {
-      background: #e0e0e0;
-      color: #111;
-      margin-top: 5px;
+      background: #2d323c;
+      color: #fff;
+      margin-bottom: 16px;
+      border: 1px solid #444a;
+      display: none;
+      animation: fadein 0.7s;
     }
     .clear-btn:hover {
-      background: #ccc;
+      background: #383d47;
+    }
+    .loading, .error {
+      text-align: center;
+      font-size: 1.05em;
+      margin: 8px 0;
+      display: none;
+      animation: fadein 0.7s;
+    }
+    .loading { color: #ffa; }
+    .error { color: #f88; }
+    @keyframes fadein {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
     }
     .preview {
-      margin-top: 15px;
+      margin-top: 16px;
       text-align: center;
+      animation: fadein 0.7s;
     }
     .preview img.cover {
-      width: 200px;
-      border-radius: 10px;
+      width: 170px;
+      border-radius: 13px;
+      box-shadow: 0 2px 15px #0002;
+      margin-bottom: 7px;
+      background: #fff;
     }
     .avatar {
-      width: 48px;
-      height: 48px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
+      border: 2px solid #fff6;
       margin-bottom: 5px;
-      border: 2px solid #eee;
+      box-shadow: 0 0 8px #0002;
     }
     .info-table {
-      margin: 10px auto 0 auto;
+      margin: 14px auto 0 auto;
       text-align: left;
       width: 100%;
-      max-width: 400px;
+      max-width: 340px;
       border-collapse: collapse;
+      font-size: 0.98em;
+      background: #262a34;
+      border-radius: 7px;
+      overflow: hidden;
     }
     .info-table td {
-      padding: 5px 8px;
-      border-bottom: 1px solid #f2f2f2;
+      padding: 7px 9px;
+      border-bottom: 1px solid #222;
     }
     .info-table td.label {
-      color: #888;
-      width: 110px;
+      color: #aaa;
+      width: 115px;
+      font-weight: 400;
+      letter-spacing: 0.1px;
     }
     .info-table td.value {
-      font-weight: bold;
-      color: #333;
+      font-weight: 600;
+      color: #fff;
     }
-    .download-links button {
-      display: block;
-      margin: 8px 0;
-      padding: 10px;
-      width: 100%;
-      text-align: center;
-      border-radius: 8px;
-      font-size: 1em;
+    .download-links {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .no-wm { background: #28a745; }
-    .wm { background: #007bff; }
-    .hd { background: #6f42c1; }
-    .loading {
+    .footer {
+      margin-top: 40px;
+      background: #16171c;
+      color: #ccc;
       text-align: center;
-      margin-top: 10px;
-      font-size: 1.1em;
-      color: #444;
+      padding: 18px 5vw 24px 5vw;
+      font-size: 0.96em;
+      border-top: 1px solid #222;
+      flex-shrink: 0;
+      box-shadow: 0 -2px 18px #0004;
     }
-    .error {
-      color: #c00;
-      margin-top: 10px;
-      text-align: center;
+    .sosmed {
+      margin: 10px 0 0 0;
+    }
+    .sosmed a {
+      display: inline-block;
+      margin: 0 8px;
+      color: #fff;
+      font-size: 1.33em;
+      transition: color 0.18s;
+    }
+    .sosmed a:hover {
+      color: var(--primary);
+      text-shadow: 0 2px 10px #ff005048;
+    }
+    .contact {
+      margin: 10px 0 0 0;
+      font-size: 1.07em;
+      color: #f2f2f2;
+    }
+    .contact a {
+      color: #ff0050;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .contact a:hover {
+      text-decoration: underline;
+      color: #fff;
+    }
+    .copyright {
+      margin-top: 13px;
+      font-size: 0.9em;
+      color: #888;
+    }
+    @media (max-width: 480px) {
+      .container { max-width: 98vw; margin: 10px auto; padding: 16px 4vw 16px 4vw; }
+      .logo-img { width: 33px; height: 33px;}
+      h2 { font-size: 1.19em; }
+      .info-table { font-size: 0.92em; }
+      .preview img.cover { width: 96vw; max-width: 180px; }
+    }
+    /* SVG animation */
+    .download-svg {
+      width: 21px;
+      height: 21px;
+      vertical-align: middle;
+      margin-right: 5px;
+      animation: dlwave 1.4s infinite linear;
+    }
+    @keyframes dlwave {
+      0% { transform: translateY(0);}
+      7% { transform: translateY(3px);}
+      14% { transform: translateY(-2px);}
+      20% { transform: translateY(6px);}
+      24% { transform: translateY(-2px);}
+      30% { transform: translateY(0);}
+      100% { transform: translateY(0);}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>🎵 TikTok Downloader Lengkap</h2>
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" class="logo-img" alt="Logo TikTok Downloader">
+      <h2>TikTok Downloader Pro</h2>
+    </div>
     <input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok">
-    <button onclick="getVideo()">Download</button>
-    <button class="clear-btn" onclick="clearForm()">Clear</button>
-    <div id="loading" class="loading" style="display:none;">Memproses...</div>
-    <div id="error" class="error" style="display:none;"></div>
+    <button onclick="getVideo()">
+      <svg class="download-svg" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3v12m0 0l-6-6m6 6l6-6" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="3" y="17" width="18" height="4" rx="2" fill="#fff" opacity=".15"/>
+      </svg>
+      Download Data
+    </button>
+    <button class="clear-btn" id="clearBtn" onclick="clearForm()">
+      <i class="fa-solid fa-xmark"></i> Clear
+    </button>
+    <div id="loading" class="loading">Memproses...</div>
+    <div id="error" class="error"></div>
 
     <div id="result" class="preview" style="display: none;">
       <img id="cover" class="cover" src="" alt="Cover">
@@ -153,10 +331,41 @@
         </tr>
       </table>
       <div class="download-links">
-        <button class="no-wm" id="downloadNoWm" onclick="downloadVideo('noWm')">⬇️ Download (No Watermark)</button>
-        <button class="wm" id="downloadWm" onclick="downloadVideo('wm')">⬇️ Download (Watermark)</button>
-        <button class="hd" id="downloadHd" onclick="downloadVideo('hd')">⬇️ Download (HD)</button>
+        <button class="download-btn" id="downloadNoWm" onclick="downloadVideo('noWm')">
+          <svg class="download-svg" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3v12m0 0l-6-6m6 6l6-6" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="17" width="18" height="4" rx="2" fill="#fff" opacity=".15"/>
+          </svg>
+          Download Video (No Watermark)
+        </button>
+        <button class="download-hd" id="downloadHd" onclick="downloadVideo('hd')">
+          <svg class="download-svg" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3v12m0 0l-6-6m6 6l6-6" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="17" width="18" height="4" rx="2" fill="#fff" opacity=".15"/>
+          </svg>
+          Download Video (HD)
+        </button>
+        <button class="download-mp3" id="downloadMp3" onclick="downloadVideo('mp3')">
+          <svg class="download-svg" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3v12m0 0l-6-6m6 6l6-6" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="17" width="18" height="4" rx="2" fill="#fff" opacity=".15"/>
+          </svg>
+          Download MP3 (Audio Only)
+        </button>
       </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="sosmed">
+      <a href="https://instagram.com/ditss.cloud" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://wa.me/6281234567890" title="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://t.me/ditsscloud" title="Telegram" target="_blank"><i class="fab fa-telegram"></i></a>
+    </div>
+    <div class="contact">
+      Hubungi kami via <a href="mailto:ditss.cloud@gmail.com">Email</a> atau DM sosmed di atas.
+    </div>
+    <div class="copyright">
+      &copy; 2025 TikTok Downloader Pro by ditss.cloud. All rights reserved.
     </div>
   </div>
   <script>
@@ -175,6 +384,12 @@
       const d = new Date(ts * 1000);
       return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: "2-digit", minute: "2-digit" });
     }
+
+    // Hide clearBtn at start
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("clearBtn").style.display = "none";
+    });
+
     async function getVideo() {
       const url = document.getElementById("tiktokUrl").value.trim();
       const loading = document.getElementById("loading");
@@ -183,8 +398,10 @@
       if (!url) {
         error.textContent = "Masukkan URL TikTok dulu!";
         error.style.display = "block";
+        loading.style.display = "none";
         return;
       }
+      loading.textContent = "Memproses...";
       loading.style.display = "block";
       result.style.display = "none";
       error.style.display = "none";
@@ -211,35 +428,43 @@
         document.getElementById("comment").textContent = numFormat(data.comment_count);
         document.getElementById("share").textContent = numFormat(data.share_count);
         document.getElementById("play").textContent = numFormat(data.play_count);
+
         document.getElementById("downloadNoWm").dataset.url = data.play;
-        document.getElementById("downloadWm").dataset.url = data.wmplay;
         document.getElementById("downloadHd").dataset.url = data.hdplay;
+        document.getElementById("downloadMp3").dataset.url = data.music_info?.play || "";
         result.style.display = "block";
+        // Show clear button
+        document.getElementById("clearBtn").style.display = "block";
       } catch (err) {
         loading.style.display = "none";
         error.textContent = "Error: " + err.message;
         error.style.display = "block";
       }
     }
+
+    // Download video/audio sebagai file
     async function downloadVideo(type) {
       let url = '';
       let fileName = 'tiktok-video.mp4';
       const cover = document.getElementById("cover");
       const tiktokId = cover ? cover.alt : "tiktok-video";
-      fileName = tiktokId + '-' + type + '.mp4';
-      if (type === 'noWm')
+      if (type === 'noWm') {
         url = document.getElementById('downloadNoWm').dataset.url;
-      else if (type === 'wm')
-        url = document.getElementById('downloadWm').dataset.url;
-      else if (type === 'hd')
+        fileName = tiktokId + '-video.mp4';
+      } else if (type === 'hd') {
         url = document.getElementById('downloadHd').dataset.url;
+        fileName = tiktokId + '-hd.mp4';
+      } else if (type === 'mp3') {
+        url = document.getElementById('downloadMp3').dataset.url;
+        fileName = tiktokId + '-audio.mp3';
+      }
 
       if (!url) {
         alert('Link tidak ditemukan!');
         return;
       }
       try {
-        document.getElementById("loading").textContent = "Mengunduh video...";
+        document.getElementById("loading").textContent = "Mengunduh...";
         document.getElementById("loading").style.display = "block";
         const res = await fetch(url);
         const blob = await res.blob();
@@ -255,9 +480,11 @@
         }, 1200);
       } catch (err) {
         document.getElementById("loading").style.display = "none";
-        alert('Gagal download video: ' + err.message);
+        alert('Gagal download: ' + err.message);
       }
     }
+
+    // Clear/reset form dan hasil
     function clearForm() {
       document.getElementById("tiktokUrl").value = "";
       document.getElementById("result").style.display = "none";
@@ -274,11 +501,13 @@
       document.getElementById("share").textContent = "";
       document.getElementById("play").textContent = "";
       document.getElementById("downloadNoWm").dataset.url = "";
-      document.getElementById("downloadWm").dataset.url = "";
       document.getElementById("downloadHd").dataset.url = "";
+      document.getElementById("downloadMp3").dataset.url = "";
       document.getElementById("loading").style.display = "none";
       document.getElementById("error").style.display = "none";
       document.getElementById("loading").textContent = "Memproses...";
+      // Hide clear button
+      document.getElementById("clearBtn").style.display = "none";
     }
   </script>
 </body>
