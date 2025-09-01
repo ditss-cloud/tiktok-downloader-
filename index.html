@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Downloader</title>
+  <title>TikTok Downloader Lengkap</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,6 +24,7 @@
       width: 100%;
       border-radius: 8px;
       border: 1px solid #ddd;
+      box-sizing: border-box;
     }
     button {
       background: #ff0050;
@@ -35,23 +36,56 @@
     button:hover {
       background: #e60047;
     }
+    .clear-btn {
+      background: #e0e0e0;
+      color: #111;
+      margin-top: 5px;
+    }
+    .clear-btn:hover {
+      background: #ccc;
+    }
     .preview {
       margin-top: 15px;
       text-align: center;
     }
-    .preview img {
+    .preview img.cover {
       width: 200px;
       border-radius: 10px;
     }
-    .download-links a {
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin-bottom: 5px;
+      border: 2px solid #eee;
+    }
+    .info-table {
+      margin: 10px auto 0 auto;
+      text-align: left;
+      width: 100%;
+      max-width: 400px;
+      border-collapse: collapse;
+    }
+    .info-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    .info-table td.label {
+      color: #888;
+      width: 110px;
+    }
+    .info-table td.value {
+      font-weight: bold;
+      color: #333;
+    }
+    .download-links button {
       display: block;
       margin: 8px 0;
       padding: 10px;
+      width: 100%;
       text-align: center;
       border-radius: 8px;
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
+      font-size: 1em;
     }
     .no-wm { background: #28a745; }
     .wm { background: #007bff; }
@@ -59,59 +93,192 @@
     .loading {
       text-align: center;
       margin-top: 10px;
+      font-size: 1.1em;
+      color: #444;
+    }
+    .error {
+      color: #c00;
+      margin-top: 10px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>🎵 TikTok Downloader</h2>
+    <h2>🎵 TikTok Downloader Lengkap</h2>
     <input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok">
     <button onclick="getVideo()">Download</button>
+    <button class="clear-btn" onclick="clearForm()">Clear</button>
     <div id="loading" class="loading" style="display:none;">Memproses...</div>
+    <div id="error" class="error" style="display:none;"></div>
 
     <div id="result" class="preview" style="display: none;">
-      <img id="cover" src="" alt="Cover">
+      <img id="cover" class="cover" src="" alt="Cover">
+      <div>
+        <img id="avatar" class="avatar" src="" alt="Avatar">
+      </div>
       <h3 id="title"></h3>
-      <p>👤 <span id="author"></span></p>
+      <table class="info-table">
+        <tr>
+          <td class="label">Akun</td>
+          <td class="value" id="author"></td>
+        </tr>
+        <tr>
+          <td class="label">Username</td>
+          <td class="value" id="username"></td>
+        </tr>
+        <tr>
+          <td class="label">Upload</td>
+          <td class="value" id="uploadDate"></td>
+        </tr>
+        <tr>
+          <td class="label">Durasi</td>
+          <td class="value" id="duration"></td>
+        </tr>
+        <tr>
+          <td class="label">Like</td>
+          <td class="value" id="like"></td>
+        </tr>
+        <tr>
+          <td class="label">Komentar</td>
+          <td class="value" id="comment"></td>
+        </tr>
+        <tr>
+          <td class="label">Share</td>
+          <td class="value" id="share"></td>
+        </tr>
+        <tr>
+          <td class="label">View</td>
+          <td class="value" id="play"></td>
+        </tr>
+      </table>
       <div class="download-links">
-        <a id="noWm" class="no-wm" target="_blank">⬇️ Download (No Watermark)</a>
-        <a id="wm" class="wm" target="_blank">⬇️ Download (Watermark)</a>
-        <a id="hd" class="hd" target="_blank">⬇️ Download (HD)</a>
+        <button class="no-wm" id="downloadNoWm" onclick="downloadVideo('noWm')">⬇️ Download (No Watermark)</button>
+        <button class="wm" id="downloadWm" onclick="downloadVideo('wm')">⬇️ Download (Watermark)</button>
+        <button class="hd" id="downloadHd" onclick="downloadVideo('hd')">⬇️ Download (HD)</button>
       </div>
     </div>
   </div>
   <script>
+    function numFormat(num) {
+      if (!num) return '0';
+      return num.toLocaleString('id');
+    }
+    function formatDuration(sec) {
+      if (!sec) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${s.toString().padStart(2,"0")}`;
+    }
+    function formatDate(ts) {
+      if (!ts) return "-";
+      const d = new Date(ts * 1000);
+      return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: "2-digit", minute: "2-digit" });
+    }
     async function getVideo() {
       const url = document.getElementById("tiktokUrl").value.trim();
       const loading = document.getElementById("loading");
       const result = document.getElementById("result");
+      const error = document.getElementById("error");
       if (!url) {
-        alert("Masukkan URL TikTok dulu!");
+        error.textContent = "Masukkan URL TikTok dulu!";
+        error.style.display = "block";
         return;
       }
       loading.style.display = "block";
       result.style.display = "none";
-      const api = `/api/tiktok?url=${encodeURIComponent(url)}`;
+      error.style.display = "none";
+      const api = `https://api-ditss.vercel.app/download/tiktok-v2?apikey=free&url=${encodeURIComponent(url)}`;
       try {
         const res = await fetch(api);
         const json = await res.json();
         loading.style.display = "none";
-        if (!json.status) {
-          alert("Gagal ambil data! Cek URL TikTok atau coba lagi.");
+        if (!json.status || !json.result?.data) {
+          error.textContent = "Gagal ambil data! Cek URL TikTok atau coba lagi.";
+          error.style.display = "block";
           return;
         }
         const data = json.result.data;
         document.getElementById("cover").src = data.cover;
+        document.getElementById("cover").alt = data.id;
+        document.getElementById("avatar").src = data.author?.avatar || "";
         document.getElementById("title").textContent = data.title || "Tanpa Judul";
-        document.getElementById("author").textContent = data.author.nickname;
-        document.getElementById("noWm").href = data.play;
-        document.getElementById("wm").href = data.wmplay;
-        document.getElementById("hd").href = data.hdplay;
+        document.getElementById("author").textContent = data.author?.nickname || "-";
+        document.getElementById("username").textContent = data.author?.unique_id || "-";
+        document.getElementById("uploadDate").textContent = formatDate(data.create_time);
+        document.getElementById("duration").textContent = formatDuration(data.duration);
+        document.getElementById("like").textContent = numFormat(data.digg_count);
+        document.getElementById("comment").textContent = numFormat(data.comment_count);
+        document.getElementById("share").textContent = numFormat(data.share_count);
+        document.getElementById("play").textContent = numFormat(data.play_count);
+        document.getElementById("downloadNoWm").dataset.url = data.play;
+        document.getElementById("downloadWm").dataset.url = data.wmplay;
+        document.getElementById("downloadHd").dataset.url = data.hdplay;
         result.style.display = "block";
       } catch (err) {
         loading.style.display = "none";
-        alert("Error: " + err.message);
+        error.textContent = "Error: " + err.message;
+        error.style.display = "block";
       }
+    }
+    async function downloadVideo(type) {
+      let url = '';
+      let fileName = 'tiktok-video.mp4';
+      const cover = document.getElementById("cover");
+      const tiktokId = cover ? cover.alt : "tiktok-video";
+      fileName = tiktokId + '-' + type + '.mp4';
+      if (type === 'noWm')
+        url = document.getElementById('downloadNoWm').dataset.url;
+      else if (type === 'wm')
+        url = document.getElementById('downloadWm').dataset.url;
+      else if (type === 'hd')
+        url = document.getElementById('downloadHd').dataset.url;
+
+      if (!url) {
+        alert('Link tidak ditemukan!');
+        return;
+      }
+      try {
+        document.getElementById("loading").textContent = "Mengunduh video...";
+        document.getElementById("loading").style.display = "block";
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+          document.getElementById("loading").style.display = "none";
+        }, 1200);
+      } catch (err) {
+        document.getElementById("loading").style.display = "none";
+        alert('Gagal download video: ' + err.message);
+      }
+    }
+    function clearForm() {
+      document.getElementById("tiktokUrl").value = "";
+      document.getElementById("result").style.display = "none";
+      document.getElementById("cover").src = "";
+      document.getElementById("cover").alt = "";
+      document.getElementById("avatar").src = "";
+      document.getElementById("title").textContent = "";
+      document.getElementById("author").textContent = "";
+      document.getElementById("username").textContent = "";
+      document.getElementById("uploadDate").textContent = "";
+      document.getElementById("duration").textContent = "";
+      document.getElementById("like").textContent = "";
+      document.getElementById("comment").textContent = "";
+      document.getElementById("share").textContent = "";
+      document.getElementById("play").textContent = "";
+      document.getElementById("downloadNoWm").dataset.url = "";
+      document.getElementById("downloadWm").dataset.url = "";
+      document.getElementById("downloadHd").dataset.url = "";
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("error").style.display = "none";
+      document.getElementById("loading").textContent = "Memproses...";
     }
   </script>
 </body>
