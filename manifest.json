@@ -1,6 +1,6 @@
 {
   "name": "TikTok Downloader Pro",
-  "short_name": "TikTokDL v1",
+  "short_name": "TikTokDL",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#23272f",
