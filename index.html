@@ -282,6 +282,29 @@
       30% { transform: translateY(0);}
       100% { transform: translateY(0);}
     }
+    /* Share style */
+    #shareBtn {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 18px #ff005040;
+    }
+    #shareBtn:hover {
+      background: #c2003a;
+    }
+    #socialShare {
+      display: none;
+      margin-top: 8px;
+      gap: 8px;
+      justify-content: center;
+    }
+    #socialShare a {
+      text-decoration: none;
+      margin: 0 8px;
+      transition: transform 0.14s;
+    }
+    #socialShare a:hover {
+      transform: scale(1.15);
+    }
   </style>
 </head>
 <body>
@@ -366,6 +389,18 @@
           </svg>
           Download MP3 (Audio Only)
         </button>
+        <!-- Tombol Share -->
+        <button id="shareBtn" onclick="shareVideo()">
+          <i class="fa-solid fa-share-nodes"></i> Share Video
+        </button>
+        <div id="socialShare">
+          <a id="waShare" href="#" target="_blank" title="Bagikan ke WhatsApp">
+            <i class="fab fa-whatsapp" style="font-size:1.4em;color:#25D366"></i>
+          </a>
+          <a id="tgShare" href="#" target="_blank" title="Bagikan ke Telegram">
+            <i class="fab fa-telegram" style="font-size:1.4em;color:#0088cc"></i>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -399,9 +434,10 @@
       return d.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: "2-digit", minute: "2-digit" });
     }
 
-    // Hide clearBtn at start
+    // Hide clearBtn & share at start
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("clearBtn").style.display = "none";
+      document.getElementById("socialShare").style.display = "none";
     });
 
     async function getVideo() {
@@ -419,6 +455,7 @@
       loading.style.display = "block";
       result.style.display = "none";
       error.style.display = "none";
+      document.getElementById("socialShare").style.display = "none";
       const api = `https://api-ditss.vercel.app/download/tiktok-v2?apikey=free&url=${encodeURIComponent(url)}`;
       try {
         const res = await fetch(api);
@@ -447,8 +484,8 @@
         document.getElementById("downloadHd").dataset.url = data.hdplay;
         document.getElementById("downloadMp3").dataset.url = data.music_info?.play || "";
         result.style.display = "block";
-        // Show clear button
         document.getElementById("clearBtn").style.display = "block";
+        document.getElementById("socialShare").style.display = "none";
       } catch (err) {
         loading.style.display = "none";
         error.textContent = "Error: " + err.message;
@@ -498,7 +535,31 @@
       }
     }
 
-    // Clear/reset form dan hasil
+async function shareVideo() {
+  try {
+    const url = document.getElementById('downloadNoWm').dataset.url;
+    const title = document.getElementById("title").textContent || "Video TikTok";
+
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const file = new File([blob], "tiktok-video.mp4", { type: blob.type });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: title,
+        text: "Cek video TikTok ini!",
+        files: [file],
+      });
+    } else {
+      alert("Browser kamu belum support share file video, fallback pakai link.");
+      window.open(`https://wa.me/?text=${encodeURIComponent(title + "\n" + url)}`);
+    }
+  } catch (err) {
+    alert("Gagal share video: " + err.message);
+  }
+}
+
+  // Clear/reset form dan hasil
     function clearForm() {
       document.getElementById("tiktokUrl").value = "";
       document.getElementById("result").style.display = "none";
@@ -520,8 +581,8 @@
       document.getElementById("loading").style.display = "none";
       document.getElementById("error").style.display = "none";
       document.getElementById("loading").textContent = "Memproses...";
-      // Hide clear button
       document.getElementById("clearBtn").style.display = "none";
+      document.getElementById("socialShare").style.display = "none";
     }
   </script>
 </body>
